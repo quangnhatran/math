@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Máy Tính Toán Học Chuyên Nghiệp</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Math">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <style>
+        body {
+            background: #f4f6fb;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            padding: 32px 24px 24px 24px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2d3a4b;
+            margin-bottom: 24px;
+        }
+
+        .display {
+            width: 100%;
+            height: 48px;
+            font-size: 1.5em;
+            text-align: right;
+            padding: 8px 12px;
+            border: 1px solid #dbe2ef;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            background: #f9fafc;
+            color: #22223b;
+            box-sizing: border-box;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 16px 0;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 6px;
+            background: #e0e7ff;
+            color: #22223b;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #b4c6fc;
+        }
+
+        .btn.op {
+            background: #f9a826;
+            color: #fff;
+        }
+
+        .btn.op:hover {
+            background: #f77f00;
+        }
+
+        .btn.eq {
+            background: #3a86ff;
+            color: #fff;
+            grid-column: span 2;
+        }
+
+        .btn.eq:hover {
+            background: #265dbe;
+        }
+
+        .btn.clear {
+            background: #ef233c;
+            color: #fff;
+        }
+
+        .btn.clear:hover {
+            background: #b7094c;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 16px 4px;
+            }
+
+            .display {
+                font-size: 1.1em;
+            }
+
+            .btn {
+                padding: 10px 0;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Máy Tính Toán Học</h2>
+        <input type="text" id="display" class="display" readonly>
+        <div class="buttons">
+            <button class="btn clear" onclick="clearDisplay()">C</button>
+            <button class="btn" onclick="backspace()">&larr;</button>
+            <button class="btn op" onclick="append('(')">(</button>
+            <button class="btn op" onclick="append(')')">)</button>
+            <button class="btn op" onclick="append('/')">÷</button>
+
+            <button class="btn" onclick="append('7')">7</button>
+            <button class="btn" onclick="append('8')">8</button>
+            <button class="btn" onclick="append('9')">9</button>
+            <button class="btn op" onclick="append('*')">×</button>
+            <button class="btn op" onclick="append('^')">xʸ</button>
+
+            <button class="btn" onclick="append('4')">4</button>
+            <button class="btn" onclick="append('5')">5</button>
+            <button class="btn" onclick="append('6')">6</button>
+            <button class="btn op" onclick="append('-')">−</button>
+            <button class="btn op" onclick="sqrt()">√</button>
+
+            <button class="btn" onclick="append('1')">1</button>
+            <button class="btn" onclick="append('2')">2</button>
+            <button class="btn" onclick="append('3')">3</button>
+            <button class="btn op" onclick="append('+')">+</button>
+            <button class="btn op" onclick="append('%')">%</button>
+
+            <button class="btn" onclick="append('0')">0</button>
+            <button class="btn" onclick="append('.')">.</button>
+            <button class="btn op" onclick="append('pi')">π</button>
+            <button class="btn op" onclick="append('e')">e</button>
+            <button class="btn eq" onclick="calculate()">=</button>
+        </div>
+        <div style="margin-top:18px; color:#888; font-size:0.95em; text-align:center;">
+            Hỗ trợ: +, −, ×, ÷, ^, %, √, π, e, (), số thập phân
+        </div>
+    </div>
+    <script>
+        let display = document.getElementById('display');
+        let expr = '';
+
+        function append(val) {
+            if (val === 'pi') val = 'π';
+            if (val === 'e') val = 'e';
+            expr += val;
+            display.value = expr;
+        }
+
+        function clearDisplay() {
+            expr = '';
+            display.value = '';
+        }
+
+        function backspace() {
+            expr = expr.slice(0, -1);
+            display.value = expr;
+        }
+
+        function sqrt() {
+            expr += '√(';
+            display.value = expr;
+        }
+
+        function calculate() {
+            try {
+                let input = expr
+                    .replace(/π/g, Math.PI)
+                    .replace(/e/g, Math.E)
+                    .replace(/√\(/g, 'Math.sqrt(')
+                    .replace(/(\d+(\.\d+)?|\))\^(\d+(\.\d+)?|\()/g, (m, a, _, b) => `Math.pow(${a},${b})`)
+                    .replace(/(\d+(\.\d+)?|\))%/g, (m, a) => `(${a}/100)`);
+                // Replace ^ operator (right-associative)
+                while (/\^/.test(input)) {
+                    input = input.replace(/(\d+(\.\d+)?|\))\^(\d+(\.\d+)?|\()/, (m, a, _, b) => `Math.pow(${a},${b})`);
+                }
+                let result = Function('"use strict";return (' + input + ')')();
+                if (typeof result === 'number' && isFinite(result)) {
+                    display.value = result;
+                    expr = result.toString();
+                } else {
+                    display.value = 'Lỗi';
+                    expr = '';
+                }
+            } catch {
+                display.value = 'Lỗi';
+                expr = '';
+            }
+        }
+    </script>
+    <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/service-worker.js");
+  }
+</script>
+
+</body>
+
+</html>
